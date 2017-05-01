@@ -16,22 +16,23 @@ public class MainActivity extends AppCompatActivity {
 
         DatabaseHandler db = new DatabaseHandler(this);
 
-        /**
-         * CRUD Operations
-         * */
-        // Inserting Contacts
-        Log.d("Insert: ", "Inserting ..");
-        db.adicionarContacto(new Contacto("Pedro"));
-        db.adicionarContacto(new Contacto("João"));
+        //db.onCreate(db.getWritableDatabase());
+        db.onUpgrade(db.getWritableDatabase(),1,2);
 
-        // Reading all contacts
-        Log.d("Reading: ", "Reading all contacts..");
+        Log.d("Inserir: ", "A inserir contactos...");
+        db.adicionarContacto(new Contacto("João"));
+        db.adicionarContacto(new Contacto("Rodrigo"));
+        db.adicionarContacto(new Contacto("Francisco"));
+        db.adicionarContacto(new Contacto("Martim"));
+        db.adicionarContacto(new Contacto("Santiago"));
+
+        Log.d("Ler: ", "Ler todos os contactos...");
         List<Contacto> contacts = db.getAllContacts();
 
         for (Contacto cn : contacts) {
-            String log = "Id: "+cn.getID()+" ,Name: " + cn.getNome();
-            // Writing Contacts to log
-            Log.d("Name: ", log);
+            String log = "Id: "+cn.getID()+" ,Nome: " + cn.getNome();
+        
+            Log.d("Nome: ", log);
         }
     }
 }

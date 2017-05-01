@@ -15,79 +15,40 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHandler extends SQLiteOpenHelper{
 
-    // All Static variables
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
-
-    // Database Name
-    private static final String DATABASE_NAME = "contactsManager";
-
-    // Contacts table name
-    private static final String TABLE_CONTACTS = "contacts";
-
-    // Contacts Table Columns names
-    private static final String KEY_ID = "id";
-
-    // Contacts Table Columns names
-    private static final String KEY_NAME = "nome";
+    private static final int BASEDEDADOS_VERSAO = 2;
+    private static final String BASEDEDADOS_NOME = "gestorContactos";
+    private static final String TABELA_CONTACTOS = "contactos";
+    private static final String CHAVE_ID = "id";
+    private static final String CHAVE_NOME = "nome";
 
     public DatabaseHandler(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, BASEDEDADOS_NOME, null, BASEDEDADOS_VERSAO);
     }
 
-    // Creating Tables
-    @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT" + ")";
+        String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABELA_CONTACTOS + "("
+                + CHAVE_ID + " INTEGER PRIMARY KEY," + CHAVE_NOME + " TEXT" + ")";
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
-    // Upgrading database
-    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABELA_CONTACTOS);
 
-        // Create tables again
         onCreate(db);
     }
 
-    // Adding new contact
     public void adicionarContacto(Contacto contact) {
-
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getNome()); // Contacto Name
-
-        // Inserting Row
-        db.insert(TABLE_CONTACTS, null, values);
-        db.close(); // Closing database connection
-
+        values.put(CHAVE_NOME, contact.getNome());
+        db.insert(TABELA_CONTACTOS, null, values);
+        db.close();
     }
 
-    // Getting single contact
-    public Contacto obterContacto(int id) {
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID, KEY_NAME}, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Contacto contacto = new Contacto(Integer.parseInt(cursor.getString(0)), cursor.getString(1));
-        // return contact
-        return contacto;
-    }
-
-    // Getting All Contacts
     public List<Contacto> getAllContacts() {
 
         List<Contacto> contactList = new ArrayList<Contacto>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_CONTACTS;
+        String selectQuery = "SELECT  * FROM " + TABELA_CONTACTOS;
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -98,45 +59,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
                 Contacto contact = new Contacto();
                 contact.setID(Integer.parseInt(cursor.getString(0)));
                 contact.setNome(cursor.getString(1));
-                // Adding contact to list
                 contactList.add(contact);
             } while (cursor.moveToNext());
         }
 
-        // return contact list
         return contactList;
-    }
-
-    // Getting contacts Count
-    public int getContactsCount() {
-        String countQuery = "SELECT  * FROM " + TABLE_CONTACTS;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
-
-        // return count
-        return cursor.getCount();
-
-    }
-    // Updating single contact
-    public int updateContact(Contacto contact) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getNome());
-
-        // updating row
-        return db.update(TABLE_CONTACTS, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
-    }
-
-    // Deleting single contact
-    public void deleteContact(Contacto contact) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CONTACTS, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
-        db.close();
     }
 }
